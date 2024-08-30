@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+#checkband
+FileName='Se'
+for f in {1..12}$FileName; do
+if [ -f $f/k_calc/band_calc/band_plot/band.dat ]; then
+echo "$f: SUCCESS!"
+else
+echo "$f: ERROR"
+fi
+done  

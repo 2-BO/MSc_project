@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+#Collect Indirect Bandgap
+
+for Sub in *_Substitute; do
+cd $Sub
+for Atom in */ ; do
+cd $Atom
+for f in */ ; do
+Drift_Line=$(grep -n "drift" $f/OUTCAR | head -n 1 | cut -d: -f1)
+Drift_Line=$(($Drift_Line + 2))
+Check_Line="$(sed "${Drift_Line}q;d" $f/OUTCAR)"
+#echo "IndirectEg=$IndirectEg"
+RelaxArr=($Check_Line)
+#echo "IndirectArr=${IndirectArr[@]}"
+val1=${RelaxArr[3]}
+val2=${RelaxArr[4]}
+val3=${RelaxArr[5]}
+if [[ $(echo "$val1 < 0.02" | bc) -eq 1 &&  $(echo "$val2 < 0.02" | bc) -eq 1 && $(echo "$val3 < 0.02" | bc) -eq 1 ]]; then
+echo "$f = SUCCESS"
+	else "$f = FAILURE"
+fi
+cd ../
+done
+
+cd ../
+done
+
+done

@@ -1,0 +1,21 @@
+#!/usr/bin/bash
+#Files and POTCAR Generator
+e_FileName='Br'
+element='Br'
+e_1='Bi'
+e_2='S'
+e_3='I'
+e_4='Br'
+
+mkdir {1..4}$e_FileName
+cp /users/ozulkub/sharedscratch/supercell-files/bisi-supercell-input-backup/* $e_FileName/
+(
+	cd $e_FileName
+	rm POTCAR
+	touch POTCAR
+	cat /users/ozulkub/sharedscratch/supercell-files/potcars/POTCAR_$e_1 >> POTCAR 
+	cat /users/ozulkub/sharedscratch/supercell-files/potcars/POTCAR_$e_2 >> POTCAR
+	cat /users/ozulkub/sharedscratch/supercell-files/potcars/POTCAR_$e_3 >> POTCAR
+	cat /users/ozulkub/sharedscratch/supercell-files/potcars/POTCAR_$e_4 >> POTCAR
+)
+for f in {2..4}$e_FileName ; do cp -R $e_FileName/* $f ; done

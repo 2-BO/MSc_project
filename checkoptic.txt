@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+#checkoptic
+FileName='Sb'                                                                                                  
+for f in {1..12}$FileName; do                                                                               
+if [[ -f $f/optic_calc/opt_plot/absorption.dat && -f $f/optic_calc/opt_plot/absorption.pdf ]]; then                                                                          echo "$f: SUCCESS!"                                                                                                                               
+else                                                                                                                                                
+echo "$f: ERROR"                                                                                                                                                  
+fi                                                                                                                                                                   
+done 

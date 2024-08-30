@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+FileName='Br'
+for f in {1..4}$FileName; do
+(
+	cd $f
+	cd k_calc
+	cd band_calc
+	mkdir band_plot
+	cd band_plot
+	cp ../vasprun.xml .
+	cp ../KPOINTS .
+	flight start
+	flight env activate conda
+	sumo-bandplot &> kp.txt
+	sumo-bandstats &> Eg.txt
+	flight stop
+)
+done

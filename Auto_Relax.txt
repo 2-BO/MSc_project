@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+e_FileName='Br'
+for f in {1..4}$e_FileName; do
+(
+	cd $f
+	echo "$f :"
+	sbatch vasp_job.sh
+)
+done

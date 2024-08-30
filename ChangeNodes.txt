@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+#Chane Nodes
+C=4
+N=2
+for f in {7..12}Se ; do 
+sed -i -e "s/KPAR   = $C/KPAR   = $N/g" $f/INCAR_bands
+sed -i -e "s/#SBATCH --nodes=$C                # node count/#SBATCH --nodes=$N                # node count/g" $f/vasp_job.sh
+done

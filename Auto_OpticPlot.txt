@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+FileName='Sb'
+for f in {5..12}$FileName ; do
+(
+	cd $f/optic_calc
+	mkdir opt_plot
+	cd opt_plot
+	echo "$(pwd)"
+	cp ../vasprun.xml .
+	flight start
+	flight env activate conda
+	sumo-optplot && flight stop
+)
+done

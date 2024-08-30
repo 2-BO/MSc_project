@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+#POSCAR Generator
+FileNameElement='Te'
+e_1=24
+e_2=24
+e_3=1
+e_4=24
+for f in {1..12}$FileNameElement; do
+
+sed -i -e "s/24   24   24/$e_1   $e_2   $e_3   $e_4/g" $f/POSCAR
+e_2=$(($e_2 - 1))
+e_3=$(($e_3 + 1))
+done

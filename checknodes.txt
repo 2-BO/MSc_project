@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+#checknodes
+FileName='Se'
+grep -Rnw {1..12}$FileName/INCAR_bands -e 'KPAR' && grep -Rnw {1..12}$FileName/vasp_job.sh -e '--nodes'

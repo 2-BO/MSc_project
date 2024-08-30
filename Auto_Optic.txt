@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+#Auto Optic
+FileName='Sb'
+for f in {9..12}$FileName ; do
+(
+	cd $f
+	mkdir optic_calc
+	cp KPOINTS optic_calc/
+	cp POTCAR optic_calc/
+	cp POSCAR optic_calc/
+	cp vasp_job.sh_optics optic_calc/
+	cp INCAR_optics optic_calc/INCAR
+	cd optic_calc
+	sbatch vasp_job.sh_optics
+)	
+done

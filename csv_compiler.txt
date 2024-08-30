@@ -1,0 +1,90 @@
+#!/usr/bin/bash
+Pdatfile=~/sharedscratch/supercell-files/MLds.csv
+
+echo "Bi,Sb,S,Se,Te,I,F,Cl,Br,Indirect,Direct,Absorption" >> "$Pdatfile"
+
+for SubstituteDir in *_Substitute/ ; do
+cd $SubstituteDir
+
+	for AtomDir in */ ; do 
+	cd $AtomDir
+		for f in */ ; do
+		#Collect Number of Elements
+		Elements=$(sed '6q;d' $f/POSCAR) ; 	ElementsArr=($Elements)
+		Conc=$(sed '7q;d' $f/POSCAR) 	 ; 	ConcArr=($Conc)
+		#echo "Elements=$Elements"
+		#echo "ElementsArray=${ElementsArr[@]}"
+		#echo "Concentration=$Conc"
+		#echo "ConcentrationArray=${ConcArr[@]}"
+		index=0;
+		e1=0;e2=0;e3=0;e4=0;e5=0;e6=0;e7=0;e8=0;e9=0;
+		for e in "${ElementsArr[@]}" ; do
+			case $e in
+			'Bi') e1=${ConcArr[$index]} ;; 'Sb') e2=${ConcArr[$index]} ;;'S')  e3=${ConcArr[$index]} ;;
+                        'Se') e4=${ConcArr[$index]} ;; 'Te') e5=${ConcArr[$index]} ;;'I')  e6=${ConcArr[$index]} ;;
+			'F')  e7=${ConcArr[$index]} ;; 'Cl') e8=${ConcArr[$index]} ;;'Br') e9=${ConcArr[$index]} ;;
+			esac
+		index=$(($index + 1))
+		done
+
+		#Collect Indirect Bandgap
+		Indirect_Line=$(grep -n "Indirect" $f/k_calc/band_calc/band_plot/Eg.txt | head -n 1 | cut -d: -f1)
+		IndirectEg="$(sed "${Indirect_Line}q;d" $f/k_calc/band_calc/band_plot/Eg.txt)"
+		#echo "IndirectEg=$IndirectEg"
+		IndirectArr=($IndirectEg)
+		#echo "IndirectArr=${IndirectArr[@]}"
+		Indirect=${IndirectArr[3]}
+		#echo "Indirect=$Indirect"
+		
+		#Collect Direct Bandgap
+		Direct_Line=$(grep -n "Direct" $f/k_calc/band_calc/band_plot/Eg.txt | head -n 1 | cut -d: -f1)
+		DirectEg="$(sed "${Direct_Line}q;d" $f/k_calc/band_calc/band_plot/Eg.txt)"
+		#echo "DirectEg=$DirectEg"
+		DirectArr=($DirectEg)
+		#echo "DirectArr=${DirectArr[@]}"
+		Direct=${DirectArr[3]}
+		#echo "Direct=$Direct"
+		Bool_Direct=0;Bool_Indirect=0;
+		if [[ "$(grep -o "Direct" $f/k_calc/band_calc/band_plot/Eg.txt)" == "Direct" ]]; then
+			Bool_Direct=1;
+		fi	
+		if [[ "$(grep -o "Indirect" $f/k_calc/band_calc/band_plot/Eg.txt)" == "Indirect" ]]; then
+			Bool_Indirect=1;
+		fi	
+		
+		#Collect Absorption
+	 	if [[ ( $Bool_Direct -eq 1 ) && ( $Bool_Indirect -eq 1 ) ]]; then
+		if [[ 1 -eq $(echo "$Direct < $Indirect" | bc) ]] ; then
+			Lowergap=$Indirect
+		else 
+			Lowergap=$Direct
+		fi
+		elif  [[ ( $Bool_Direct -eq 0 ) && ( $Bool_Indirect -eq 1 ) ]]; then
+			Lowergap=$Indirect ; Direct="nan"
+		elif [[ ( $Bool_Direct -eq 1 ) && ( $Bool_Indirect -eq 0 ) ]]; then
+			Lowergap=$Direct ; Indirect="nan"
+		fi
+		#ts=${Lowergap%.*}
+		#fr=${Lowergap#*.}
+		#i_ts=$(($ts + 1))
+		#i_Lowergap="${i_ts}.${fr}"
+		i_Lowergap=$(echo "$Lowergap + 1" | bc)
+		#echo "$i_Lowergap"
+		Evline=$(awk -v c=1 -v t=$i_Lowergap 'NR==1{d=$c-t;d=d<0?-d:d;v=$c;next}{m=$c-t;m=m<0?-m:m}m<d{d=m;v=$c}END{print v}' $f/optic_calc/opt_plot/absorption.dat)
+		#echo "Evline=$Evline"
+		lineNum="$(grep -n "$Evline" $f/optic_calc/opt_plot/absorption.dat | head -n 1 | cut -d: -f1)"
+		#echo "lineNum=$lineNum"
+		AbsorptionLine=$(sed "${lineNum}q;d" $f/optic_calc/opt_plot/absorption.dat)
+		#echo "AbsorptionLine=$AbsorptionLine"
+		AbsorptionArr=($AbsorptionLine)
+		#echo "AbsorptionArr=${AbsorptionArr[@]}"
+		Absorption=${AbsorptionArr[1]}
+		#echo "Absorption = $Absorption"
+		temp_filename="$f"
+		e_filename="${temp_filename:0:-1}"
+		echo "$e1,$e2,$e3,$e4,$e5,$e6,$e7,$e8,$e9,$Indirect,$Direct,$Absorption" >> "$Pdatfile"
+		done
+		cd ../
+	done
+	cd ../
+done

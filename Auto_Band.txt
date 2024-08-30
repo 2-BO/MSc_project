@@ -1,0 +1,25 @@
+#!/usr/bin/bash
+#Auto Band
+FileName='Sb'
+for f in 2$FileName; do
+(
+	cd $f
+	mkdir k_calc
+	cd k_calc
+	cp ../KPOINTS .
+	cp ../CONTCAR ./POSCAR
+	flight start
+	flight env activate conda
+	sumo-kgen --seekpath && flight stop
+
+	mkdir band_calc
+	cd band_calc
+	cp ../KPOINTS_band ./KPOINTS
+	cp ../POSCAR .
+	cp ../../POTCAR .
+	cp ../../CHGCAR .
+	cp ../../INCAR_bands ./INCAR
+	cp ../../vasp_job.sh .
+	sbatch vasp_job.sh
+)
+done
